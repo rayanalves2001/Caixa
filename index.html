@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caixa Selaria</title>
+<style>
+:root{--brown:#5a3825;--brown2:#7b5237;--cream:#f7f2eb;--gold:#c69a5b;--ink:#28221d;--muted:#74685e;--line:#e5d9cc;--white:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+header{background:linear-gradient(135deg,#382419,#765037);color:#fff;padding:22px 16px 20px;text-align:center}
+.logo{width:54px;height:54px;border:2px solid #d8b57f;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:21px;color:#f0d4a4;margin-bottom:7px}
+header h1{margin:0;font-size:23px;letter-spacing:1px}header p{margin:6px 0 0;color:#ead8c5;font-size:13px}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.metric{background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px;box-shadow:0 2px 7px #40210d08}
+.metric small{color:var(--muted);display:block;margin-bottom:7px;font-size:12px}.metric strong{font-size:clamp(17px,3vw,24px);color:var(--brown);overflow-wrap:anywhere}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:15px;box-shadow:0 2px 8px #40210d08}
+h2{font-size:17px;margin:0 0 14px;color:var(--brown)}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}label{font-size:12px;font-weight:700;color:#594638}
+input,select{width:100%;padding:12px;border:1px solid #d9cbbd;border-radius:9px;background:#fff;font-size:15px;color:var(--ink);min-width:0}
+button{border:0;border-radius:9px;padding:12px 14px;font-weight:700;font-size:14px;cursor:pointer}
+.primary{background:var(--brown);color:white}.secondary{background:#eee4d8;color:var(--brown)}.danger{background:#f8e5e0;color:#963c2c}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}
+.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px;min-width:650px}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid #eee5dc;vertical-align:top}th{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#796655;background:#faf7f3}td.money{white-space:nowrap;font-weight:700}
+.pill{display:inline-block;padding:4px 7px;border-radius:20px;background:#f1e8dc;color:#68472f;font-size:11px;font-weight:700}
+.empty{text-align:center;color:var(--muted);padding:24px 8px}
+.reportline{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #eee5dc;font-size:14px}.reportline strong{color:var(--brown)}
+.note{font-size:12px;color:var(--muted);line-height:1.5;margin:9px 0 0}
+footer{text-align:center;color:#8a7a6b;font-size:11px;padding:8px 12px 24px}
+@media(max-width:560px){main{padding:11px}.cards{gap:7px}.metric{padding:11px 9px}.metric small{font-size:11px}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.toolbar{grid-template-columns:1fr}.panel{padding:13px}header{padding:18px 12px}}
+@media print{
+ body{background:#fff;color:#000}header{background:#fff!important;color:#000;padding:0 0 12px;border-bottom:2px solid #333}header p{color:#333}.logo{color:#000;border-color:#333}
+ main{max-width:none;padding:0}.no-print,form,.cards,.entry-panel,.history-panel{display:none!important}.panel{box-shadow:none;border:0;padding:8px 0;margin:0}.report-panel{display:block!important}.reportline{border-color:#ccc}table{min-width:0;font-size:10px}th,td{padding:6px 4px}footer{display:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">RM</div>
+  <h1>CAIXA SELARIA</h1>
+  <p>Controle de recebimentos</p>
+</header>
+<main>
+  <section class="cards">
+    <div class="metric"><small>Recebido no mês</small><strong id="monthTotal">R$ 0,00</strong></div>
+    <div class="metric"><small>Recebimentos no mês</small><strong id="monthCount">0</strong></div>
+    <div class="metric"><small>Total em dinheiro</small><strong id="cashTotal">R$ 0,00</strong></div>
+  </section>
+
+  <section class="panel entry-panel">
+    <h2 id="formTitle">＋ Registrar recebimento</h2>
+    <form id="saleForm">
+      <div class="formgrid">
+        <div class="field"><label for="date">Data do recebimento</label><input id="date" type="date" required></div>
+        <div class="field"><label for="customer">Nome do cliente</label><input id="customer" maxlength="100" placeholder="Nome do cliente" required></div>
+        <div class="field full"><label for="description">Descrição do recebimento</label><input id="description" maxlength="160" placeholder="Ex.: pagamento, sinal, serviço..." required></div>
+        <div class="field"><label for="amount">Valor recebido (R$)</label><input id="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0,00" required></div>
+        <div class="field"><label for="payment">Forma de pagamento</label><select id="payment" required><option value="Dinheiro">Dinheiro</option><option value="Cartão de débito">Cartão de débito</option><option value="Cartão de crédito">Cartão de crédito</option><option value="Pix">Pix</option></select></div>
+        <div class="field full"><label for="notes">Observações (opcional)</label><input id="notes" maxlength="200" placeholder="Detalhes adicionais"></div>
+      </div>
+      <div class="actions"><button class="primary" type="submit" id="saveBtn">Salvar recebimento</button><button class="secondary" type="button" id="cancelEdit" hidden>Cancelar edição</button><button class="secondary" type="reset">Limpar campos</button></div>
+    </form>
+    <p class="note">Os registros ficam salvos neste aparelho e navegador. Use o backup para guardar uma cópia e restaurar os dados se necessário.</p>
+  </section>
+
+  <section class="panel no-print">
+    <h2>Backup dos recebimentos</h2>
+    <p class="note">Exporte uma cópia completa em arquivo JSON. Para recuperar seus dados, importe um backup salvo anteriormente.</p>
+    <div class="actions">
+      <button class="secondary" id="backupBtn">Baixar backup completo</button>
+      <button class="secondary" id="importBtn">Restaurar backup</button>
+      <input id="backupFile" type="file" accept=".json,application/json" hidden>
+    </div>
+  </section>
+
+  <section class="panel history-panel">
+    <h2>Recebimentos registrados</h2>
+    <div class="toolbar no-print">
+      <div class="field"><label for="filterMonth">Filtrar por mês</label><input id="filterMonth" type="month"></div>
+      <div class="field"><label for="filterPayment">Forma de pagamento</label><select id="filterPayment"><option value="">Todas as formas</option><option>Dinheiro</option><option>Cartão de débito</option><option>Cartão de crédito</option><option>Pix</option></select></div>
+    </div>
+    <div class="actions no-print"><button class="secondary" id="clearFilters">Mostrar todos</button><button class="secondary" id="exportCsv">Salvar relatório CSV</button><button class="primary" id="printBtn">Imprimir / Salvar em PDF</button></div>
+    <div class="tablewrap" style="margin-top:12px">
+      <table><thead><tr><th>Data</th><th>Cliente</th><th>Descrição</th><th>Pagamento</th><th>Valor</th><th class="no-print">Ações</th></tr></thead><tbody id="salesBody"></tbody></table>
+      <div id="empty" class="empty">Nenhum recebimento registrado neste filtro.</div>
+    </div>
+  </section>
+
+  <section class="panel report-panel">
+    <h2 id="reportTitle">Resumo do relatório</h2>
+    <div class="reportline"><span>Total recebido no período</span><strong id="reportTotal">R$ 0,00</strong></div>
+    <div class="reportline"><span>Quantidade de recebimentos</span><strong id="reportCount">0</strong></div>
+    <div class="reportline"><span>Dinheiro</span><strong id="reportCash">R$ 0,00</strong></div>
+    <div class="reportline"><span>Cartão de débito</span><strong id="reportDebit">R$ 0,00</strong></div>
+    <div class="reportline"><span>Cartão de crédito</span><strong id="reportCredit">R$ 0,00</strong></div>
+    <div class="reportline"><span>Pix</span><strong id="reportPix">R$ 0,00</strong></div>
+    <p class="note">O relatório respeita o mês e a forma de pagamento selecionados. Para o fechamento completo do mês, deixe “Todas as formas” selecionado.</p>
+  </section>
+</main>
+<footer>Selaria RM • Controle local de caixa</footer>
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const brl = n => Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const today = new Date();
+const localDate = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+const currentMonth = localDate.slice(0,7);
+$('date').value = localDate;
+$('filterMonth').value = currentMonth;
+$('reportTitle').textContent = 'Fechamento mensal';
+let sales = [];
+try { sales = JSON.parse(localStorage.getItem('selariaRM_cash_sales_v1') || '[]'); if(!Array.isArray(sales)) sales=[]; } catch(e) { sales=[]; }
+let editingId = null;
+const save = () => localStorage.setItem('selariaRM_cash_sales_v1', JSON.stringify(sales));
+const filtered = () => {
+ const month = $('filterMonth').value, payment = $('filterPayment').value;
+ return sales.filter(s => (!month || s.date.slice(0,7)===month) && (!payment || s.payment===payment))
+ .sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt-a.createdAt);
+};
+const sum = arr => arr.reduce((t,s)=>t+Number(s.amount),0);
+const monthSales = () => sales.filter(s=>s.date.slice(0,7)===currentMonth);
+function render(){
+ const list = filtered();
+ $('salesBody').innerHTML = '';
+ $('empty').style.display = list.length ? 'none' : 'block';
+ list.forEach(s=>{
+  const tr=document.createElement('tr');
+  const values=[new Date(s.date+'T12:00:00').toLocaleDateString('pt-BR'),s.customer,s.description,s.payment,brl(s.amount)];
+  values.forEach((v,i)=>{const td=document.createElement('td');td.textContent=v;if(i===4)td.className='money';if(i===3){const span=document.createElement('span');span.className='pill';span.textContent=v;td.textContent='';td.appendChild(span)}tr.appendChild(td)});
+  const td=document.createElement('td');td.className='no-print';
+  const edit=document.createElement('button');edit.className='secondary';edit.textContent='Editar';edit.style.padding='7px';edit.onclick=()=>editSale(s.id);
+  const del=document.createElement('button');del.className='danger';del.textContent='Excluir';del.style.padding='7px';del.style.marginLeft='5px';del.onclick=()=>deleteSale(s.id);
+  td.append(edit,del);tr.appendChild(td);$('salesBody').appendChild(tr);
+ });
+ const ms=monthSales();
+ $('monthTotal').textContent=brl(sum(ms));$('monthCount').textContent=ms.length;$('cashTotal').textContent=brl(sum(ms.filter(s=>s.payment==='Dinheiro')));
+ const total=sum(list);
+ $('reportTitle').textContent=$('filterMonth').value ? 'Fechamento de '+$('filterMonth').value.split('-').reverse().join('/') : 'Fechamento de todos os meses';
+ $('reportTotal').textContent=brl(total);$('reportCount').textContent=list.length;
+ $('reportCash').textContent=brl(sum(list.filter(s=>s.payment==='Dinheiro')));
+ $('reportDebit').textContent=brl(sum(list.filter(s=>s.payment==='Cartão de débito')));
+ $('reportCredit').textContent=brl(sum(list.filter(s=>s.payment==='Cartão de crédito')));
+ $('reportPix').textContent=brl(sum(list.filter(s=>s.payment==='Pix')));
+}
+function editSale(id){
+ const s=sales.find(x=>x.id===id);if(!s)return;editingId=id;
+ ['date','customer','description','amount','payment','notes'].forEach(k=>$(k).value=s[k]??'');
+ $('formTitle').textContent='✎ Editar recebimento';$('saveBtn').textContent='Salvar alterações';$('cancelEdit').hidden=false;
+ $('saleForm').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function resetForm(){editingId=null;$('formTitle').textContent='＋ Registrar recebimento';$('saveBtn').textContent='Salvar recebimento';$('cancelEdit').hidden=true;$('date').value=localDate;}
+function deleteSale(id){const s=sales.find(x=>x.id===id);if(!s)return;if(confirm(`Excluir o recebimento de ${s.customer} (${brl(s.amount)})?`)){sales=sales.filter(x=>x.id!==id);save();if(editingId===id){$('saleForm').reset();resetForm()}render()}}
+$('saleForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const amount=Number($('amount').value);
+ if(!Number.isFinite(amount)||amount<=0){alert('Informe um valor maior que zero.');return}
+ const item={id:editingId||`${Date.now()}-${Math.random().toString(16).slice(2)}`,date:$('date').value,customer:$('customer').value.trim(),description:$('description').value.trim(),amount,payment:$('payment').value,notes:$('notes').value.trim(),createdAt:Date.now()};
+ if(!item.customer||!item.description||!item.date){alert('Preencha data, nome e descrição.');return}
+ if(editingId){sales=sales.map(s=>s.id===editingId?{...item,createdAt:s.createdAt}:s)}else sales.push(item);
+ save();$('saleForm').reset();resetForm();render();
+});
+$('cancelEdit').onclick=()=>{$('saleForm').reset();resetForm()};
+$('filterMonth').onchange=render;$('filterPayment').onchange=render;
+$('clearFilters').onclick=()=>{$('filterMonth').value='';$('filterPayment').value='';render()};
+$('printBtn').onclick=()=>window.print();
+
+$('backupBtn').onclick=()=>{
+ const payload={app:'Caixa Selaria',version:1,exportedAt:new Date().toISOString(),recebimentos:sales};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=`backup-caixa-selaria-${localDate}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+};
+$('importBtn').onclick=()=>$('backupFile').click();
+$('backupFile').onchange=async e=>{
+ const file=e.target.files&&e.target.files[0];if(!file)return;
+ try{
+  const data=JSON.parse(await file.text());
+  const incoming=Array.isArray(data)?data:data.recebimentos;
+  if(!Array.isArray(incoming)||!incoming.every(s=>s&&typeof s.date==='string'&&typeof s.customer==='string'&&typeof s.description==='string'&&Number.isFinite(Number(s.amount))&&typeof s.payment==='string')) throw new Error('Formato inválido');
+  if(!confirm(`O backup contém ${incoming.length} recebimento(s). Deseja substituir os registros atuais por esse backup?`)) return;
+  sales=incoming.map((s,i)=>({...s,id:s.id||`import-${Date.now()}-${i}`,amount:Number(s.amount),createdAt:Number(s.createdAt)||Date.now()}));
+  save();render();alert('Backup restaurado com sucesso.');
+ }catch(err){alert('Não foi possível restaurar. Selecione um arquivo de backup JSON válido do Caixa Selaria.');}
+ finally{$('backupFile').value='';}
+};
+
+$('exportCsv').onclick=()=>{
+ const list=filtered();
+ const rows=[['Data','Nome','Descrição','Forma de pagamento','Valor (R$)','Observações'],...list.map(s=>[s.date,s.customer,s.description,s.payment,Number(s.amount).toFixed(2).replace('.',','),s.notes||''])];
+ const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=`relatorio-caixa-selaria-${$('filterMonth').value||'todos-os-meses'}.csv`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+};
+render();
+})();
+</script>
+</body>
+</html>
